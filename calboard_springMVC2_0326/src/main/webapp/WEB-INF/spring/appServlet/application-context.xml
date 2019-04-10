@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	
+		<property name="location">
+		<value>classpath:properties/db.properties</value>
+		</property>
+	</bean>
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		
+		<property name="driverClassName" value="${driver}"></property>
+		<property name="url" value="${url}"></property>
+		<property name="password" value="${password}"></property>
+		<property name="username" value="${username}"></property>	
+		<property name="defaultAutoCommit" value="true"></property>
+
+	</bean>
+	
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation" value="WEB-INF/spring/sqls/SqlMapConfig.xml"></property>
+	</bean>
+	
+	<!-- sqlSessionFactorybean에서 sqlSessionTemplate 객체로 사용  //  생성자   //-->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSession" />
+	</bean>
+	
+	<!-- Transaction 처리를 위한 객체-->
+	<bean id="transactionManager" 
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+		
+		<!-- 1번 방법: @transactional이라고 메서드를 선언한다. -->
+		
+		<!-- proxy-target-class 기본 false, 설정true
+			처리 대상 클래스가 인터페이스를 구현하지 않은 경우 true설정 사용 -->
+	<tx:annotation-driven transaction-manager="transactionManager"
+	proxy-target-class="true"/>	
+	
+	<!-- tx:advice, aop:config  -->
+	
+	<tx:advice transaction-manager="transactionManager" id="txAdvice">
+		<tx:attributes>
+			<tx:method name="replyBoard" propagation="REQUIRED"
+													rollback-for="Exception"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config>
+		<aop:pointcut expression="execution(* com.hk.answer.*Service.*Board(..))" 
+		id="serviceTransaction"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceTransaction"/>
+	</aop:config>
+	
+	 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+																						
+</beans>

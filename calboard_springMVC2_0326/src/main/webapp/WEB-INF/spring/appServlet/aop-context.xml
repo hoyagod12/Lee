@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+	<bean id="LogAop" class="com.hk.calboard.aop.LogExcute"/>
+	
+	<aop:config>
+		<!-- 실행할위치 -->
+		<aop:pointcut expression="execution(* com.hk.calboard.daos.CalDao.*(..))" 
+		id="daoLogPoint"/>
+		<aop:aspect id="LogAop" ref="LogAop">
+			<!-- 메서드 실행전에: LogExecute객체에서 구현한 메서드를 AnsDao객체의 메서드가 실행하기전에 먼저 실행한다. -->
+			<aop:before method="before" pointcut-ref="daoLogPoint" />
+			<!-- 메서드가 리턴이 있을때 -->
+			<aop:after-returning method="afterReturning" pointcut-ref="daoLogPoint" />
+			<!-- 메서드에서 예외가 발생했을때 -->
+			<aop:after-throwing method="daoError" pointcut-ref="daoLogPoint" />
+		</aop:aspect>
+	</aop:config>
+
+</beans>
