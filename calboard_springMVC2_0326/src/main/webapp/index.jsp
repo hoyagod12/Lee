@@ -13,6 +13,6 @@
 
 
 <body>
-<a href="calendar.do">일정보기</a>
+<a href="calendar.do">일정보기</a>차차차차
 </body>
 </html>
